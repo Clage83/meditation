@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Meditation">
+<title>Meditation Journal</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.6.0/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f8f7f5;
+    --surface: #ffffff;
+    --surface-2: #f1f0ee;
+    --text: #1a1a18;
+    --text-muted: #888780;
+    --border: rgba(0,0,0,0.1);
+    --border-strong: rgba(0,0,0,0.18);
+    --purple-bg: #EEEDFE;
+    --purple-border: #AFA9EC;
+    --purple-text: #3C3489;
+    --purple-tag-bg: #AFA9EC;
+    --purple-tag-text: #26215C;
+    --green-bg: #EAF3DE;
+    --green-border: #97C459;
+    --green-text: #3B6D11;
+    --radius: 8px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18;
+      --surface: #2c2c2a;
+      --surface-2: #232321;
+      --text: #f0efe8;
+      --text-muted: #888780;
+      --border: rgba(255,255,255,0.1);
+      --border-strong: rgba(255,255,255,0.18);
+      --purple-bg: #26215C;
+      --purple-border: #534AB7;
+      --purple-text: #CECBF6;
+      --purple-tag-bg: #3C3489;
+      --purple-tag-text: #CECBF6;
+      --green-bg: #173404;
+      --green-border: #3B6D11;
+      --green-text: #C0DD97;
+    }
+  }
+  html, body { min-height: 100vh; background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: var(--text); }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .title { font-size: 22px; font-weight: 600; color: var(--text); }
+  .streak-pill { font-size: 12px; padding: 4px 12px; border-radius: 20px; background: var(--green-bg); color: var(--green-text); font-weight: 500; border: 0.5px solid var(--green-border); }
+  .month-row { display: flex; gap: 8px; margin-bottom: 1.25rem; }
+  .month-row select { flex: 1; font-size: 15px; font-weight: 500; padding: 10px 12px; border: 0.5px solid var(--border-strong); border-radius: var(--radius); background: var(--surface); color: var(--text); appearance: none; -webkit-appearance: none; cursor: pointer; }
+  .month-row select:focus { outline: none; border-color: #7F77DD; }
+  .year-sel { flex: none !important; width: 100px !important; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem; }
+  .stat { background: var(--surface); border-radius: 12px; padding: 14px; text-align: center; border: 0.5px solid var(--border); }
+  .stat-n { font-size: 28px; font-weight: 600; color: var(--text); }
+  .stat-l { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+  .divider { height: 0.5px; background: var(--border); margin-bottom: 1.25rem; }
+  .entry { border: 0.5px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 10px; background: var(--surface); }
+  .entry.today-entry { border-color: var(--purple-border); background: var(--purple-bg); }
+  .entry-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .entry-day { font-size: 15px; font-weight: 500; color: var(--text); }
+  .today-entry .entry-day { color: var(--purple-text); }
+  .today-tag { font-size: 11px; padding: 3px 10px; border-radius: 20px; background: var(--purple-tag-bg); color: var(--purple-tag-text); font-weight: 500; }
+  .check-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+  .chk { display: flex; align-items: center; gap: 8px; padding: 12px; border-radius: var(--radius); border: 0.5px solid var(--border-strong); background: var(--surface-2); cursor: pointer; font-size: 14px; color: var(--text-muted); min-height: 48px; user-select: none; -webkit-tap-highlight-color: transparent; transition: background 0.1s, border-color 0.1s; }
+  .chk:active { opacity: 0.75; }
+  .chk.on { background: var(--green-bg); border-color: var(--green-border); color: var(--green-text); }
+  .chk i { font-size: 20px; flex-shrink: 0; }
+  .chk span { font-weight: 500; }
+  textarea { width: 100%; font-size: 13px; border: 0.5px solid var(--border); border-radius: var(--radius); padding: 8px 10px; background: var(--surface-2); color: var(--text); font-family: inherit; resize: none; overflow: hidden; line-height: 1.5; min-height: 38px; }
+  textarea::placeholder { color: var(--text-muted); }
+  textarea:focus { outline: none; border-color: #7F77DD; }
+  .empty { text-align: center; padding: 2.5rem 1rem; color: var(--text-muted); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="title">Meditation</div>
+    <div class="streak-pill" id="streakEl">…</div>
+  </div>
+  <div class="month-row">
+    <select id="monthSel" onchange="onMonthChange()"></select>
+    <select id="yearSel" class="year-sel" onchange="onMonthChange()"></select>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="sMorn">–</div><div class="stat-l">Morning</div></div>
+    <div class="stat"><div class="stat-n" id="sEven">–</div><div class="stat-l">Evening</div></div>
+  </div>
+  <div class="divider"></div>
+  <div id="list"></div>
+</div>
+
+<script>
+const KEY = 'med_diary_v1';
+let db = {};
+let vy, vm;
+
+function load() {
+  try { const r = localStorage.getItem(KEY); if (r) db = JSON.parse(r); } catch(e) { db = {}; }
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(db)); } catch(e) {}
+}
+
+function ds(y, m, d) { return `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; }
+function todayKey() { const n = new Date(); return ds(n.getFullYear(), n.getMonth(), n.getDate()); }
+function getEntry(k) { if (!db[k]) db[k] = {m:false, e:false, n:''}; return db[k]; }
+
+function toggle(k, field) { getEntry(k)[field] = !getEntry(k)[field]; save(); render(); }
+function noteChange(k, v) { getEntry(k).n = v; save(); }
+
+const MN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function buildSelects() {
+  const now = new Date();
+  const ms = document.getElementById('monthSel');
+  MN.forEach((m, i) => { const o = document.createElement('option'); o.value = i; o.textContent = m; if (i === now.getMonth()) o.selected = true; ms.appendChild(o); });
+  const ys = document.getElementById('yearSel');
+  for (let y = 2026; y <= 2030; y++) {
+    const o = document.createElement('option'); o.value = y; o.textContent = y;
+    const curY = now.getFullYear() >= 2026 && now.getFullYear() <= 2030 ? now.getFullYear() : 2026;
+    if (y === curY) o.selected = true;
+    ys.appendChild(o);
+  }
+}
+
+function onMonthChange() {
+  vy = parseInt(document.getElementById('yearSel').value);
+  vm = parseInt(document.getElementById('monthSel').value);
+  render();
+}
+
+function calcStreak() {
+  let s = 0; const n = new Date();
+  while (true) {
+    const k = ds(n.getFullYear(), n.getMonth(), n.getDate());
+    const en = db[k];
+    if (!en || (!en.m && !en.e)) break;
+    s++; n.setDate(n.getDate() - 1);
+  }
+  return s;
+}
+
+function render() {
+  const tod = todayKey();
+  const now = new Date();
+  const daysInMonth = new Date(vy, vm + 1, 0).getDate();
+  const isCurrentMonth = (vy === now.getFullYear() && vm === now.getMonth());
+  const isFuture = (vy > now.getFullYear()) || (vy === now.getFullYear() && vm > now.getMonth());
+  const maxDay = isCurrentMonth ? now.getDate() : (isFuture ? 0 : daysInMonth);
+
+  let morn = 0, even = 0;
+  for (let d = 1; d <= daysInMonth; d++) { const en = db[ds(vy,vm,d)]; if(en){if(en.m)morn++;if(en.e)even++;} }
+  document.getElementById('sMorn').textContent = morn;
+  document.getElementById('sEven').textContent = even;
+
+  const s = calcStreak();
+  document.getElementById('streakEl').textContent = s > 0 ? `${s} day${s===1?'':'s'} in a row` : 'Start your streak';
+
+  let html = '';
+  for (let d = maxDay; d >= 1; d--) {
+    const k = ds(vy, vm, d);
+    const isToday = k === tod;
+    const en = db[k] || {m:false, e:false, n:''};
+    const dow = new Date(vy, vm, d).getDay();
+    html += `<div class="entry${isToday?' today-entry':''}">
+      <div class="entry-head">
+        <div class="entry-day">${DN[dow]}, ${MN[vm]} ${d}</div>
+        ${isToday ? '<span class="today-tag">Today</span>' : ''}
+      </div>
+      <div class="check-row">
+        <div class="chk${en.m?' on':''}" onclick="toggle('${k}','m')">
+          <i class="ti ti-${en.m?'check':'sun'}" aria-hidden="true"></i>
+          <span>${en.m ? 'Morning ✓' : 'Morning'}</span>
+        </div>
+        <div class="chk${en.e?' on':''}" onclick="toggle('${k}','e')">
+          <i class="ti ti-${en.e?'check':'moon'}" aria-hidden="true"></i>
+          <span>${en.e ? 'Evening ✓' : 'Evening'}</span>
+        </div>
+      </div>
+      <textarea placeholder="Notes…" oninput="autoH(this)" onchange="noteChange('${k}',this.value)">${en.n||''}</textarea>
+    </div>`;
+  }
+  if (!html) html = '<div class="empty">No entries this month.</div>';
+  document.getElementById('list').innerHTML = html;
+  document.querySelectorAll('textarea').forEach(t => { t.style.height = 'auto'; t.style.height = t.scrollHeight + 'px'; });
+}
+
+function autoH(el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; }
+
+function init() {
+  load();
+  const now = new Date();
+  vy = now.getFullYear(); vm = now.getMonth();
+  buildSelects();
+  render();
+}
+init();
+</script>
+</body>
+</html>
